@@ -9,6 +9,7 @@ import {
   X, Send, Plus
 } from 'lucide-react';
 import { babyData, WeekData } from './data';
+import { getIllustration, illustrationUrls } from './components/Illustrations';
 
 type ForumPost = {
   id: string;
@@ -83,7 +84,10 @@ export default function App() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [isAddingPost, setIsAddingPost] = useState(false);
+  const [showGuidelines, setShowGuidelines] = useState(true);
   const [newPostData, setNewPostData] = useState({ title: '', content: '', topic: 'General' });
+  const [userAvatar, setUserAvatar] = useState<string>('bubloo-mother');
+  const [isChangingAvatar, setIsChangingAvatar] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const currentData = babyData[currentIndex];
@@ -150,7 +154,7 @@ export default function App() {
         body: JSON.stringify({
           author: 'Raj',
           content: newComment,
-          avatar: 'https://picsum.photos/seed/raj/100/100'
+          avatar: userAvatar
         })
       });
       if (response.ok) {
@@ -174,7 +178,7 @@ export default function App() {
         body: JSON.stringify({
           ...newPostData,
           author: 'Raj',
-          avatar: 'https://picsum.photos/seed/raj/100/100'
+          avatar: userAvatar
         })
       });
       if (response.ok) {
@@ -194,6 +198,18 @@ export default function App() {
 
   const handlePrev = () => {
     if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUserAvatar(reader.result as string);
+        setIsChangingAvatar(false);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -358,11 +374,62 @@ export default function App() {
                 <h2 className="text-2xl font-bold font-heading text-slate-800">Recent Discussions</h2>
                 <button 
                   onClick={() => setIsAddingPost(true)}
-                  className="bg-rose-500 text-white p-2 rounded-full shadow-lg shadow-rose-200"
+                  className="bg-brand-peach text-white p-2 rounded-full shadow-lg shadow-brand-peach/20 hover:bg-brand-dark-peach transition-colors"
                 >
                   <Plus className="w-6 h-6" />
                 </button>
               </div>
+
+              <AnimatePresence>
+                {showGuidelines && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="bg-brand-cream rounded-3xl p-6 border border-brand-peach/20 relative">
+                      <button 
+                        onClick={() => setShowGuidelines(false)}
+                        className="absolute top-4 right-4 text-brand-dark-peach/40 hover:text-brand-dark-peach transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="bg-white p-2 rounded-xl shadow-sm">
+                          <Heart className="w-5 h-5 text-brand-peach fill-brand-peach" />
+                        </div>
+                        <h3 className="font-bold text-brand-dark-peach font-heading">Community Guidelines</h3>
+                      </div>
+                      <p className="text-sm text-brand-dark-peach/80 leading-relaxed mb-4">
+                        Welcome to Bubloo Community! This is a safe space for parents to support each other.
+                      </p>
+                      <ul className="grid grid-cols-1 gap-2">
+                        {[
+                          { icon: <Smile className="w-3.5 h-3.5" />, text: "Be kind, respectful, and supportive." },
+                          { icon: <Users className="w-3.5 h-3.5" />, text: "Respect everyone's unique parenting journey." },
+                          { icon: <Shield className="w-3.5 h-3.5" />, text: "Protect your privacy and others'." },
+                          { icon: <Activity className="w-3.5 h-3.5" />, text: "Consult professionals for medical advice." }
+                        ].map((item, i) => (
+                          <li key={i} className="flex items-center gap-2 text-xs font-medium text-brand-dark-peach/70">
+                            <span className="text-brand-peach">{item.icon}</span>
+                            {item.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              
+              {!showGuidelines && (
+                <button 
+                  onClick={() => setShowGuidelines(true)}
+                  className="text-xs font-bold text-brand-peach hover:text-brand-dark-peach transition-colors flex items-center gap-1"
+                >
+                  <Heart className="w-3 h-3" /> Show Guidelines
+                </button>
+              )}
               
               {posts.map((post) => (
                 <div 
@@ -372,7 +439,15 @@ export default function App() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <img src={post.avatar} alt={post.author} className="w-10 h-10 rounded-full border-2 border-rose-100" />
+                      <div className="w-10 h-10 rounded-full border-2 border-rose-100 overflow-hidden bg-slate-50">
+                        {post.avatar.startsWith('bubloo-') ? (
+                          <div className="w-full h-full p-1.5">
+                            {getIllustration(post.avatar)}
+                          </div>
+                        ) : (
+                          <img src={post.avatar} alt={post.author} className="w-full h-full object-cover" />
+                        )}
+                      </div>
                       <div>
                         <p className="text-sm font-bold text-slate-800">{post.author}</p>
                         <p className="text-xs text-slate-400">{post.timeAgo}</p>
@@ -436,6 +511,26 @@ export default function App() {
               </div>
               
               <div className="space-y-4">
+                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-rose-200 bg-white">
+                    {userAvatar.startsWith('bubloo-') ? (
+                      <div className="w-full h-full p-2">
+                        {getIllustration(userAvatar)}
+                      </div>
+                    ) : (
+                      <img src={userAvatar} alt="Your Avatar" className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-800">Your Avatar</p>
+                    <button 
+                      onClick={() => setIsChangingAvatar(true)}
+                      className="text-xs font-bold text-rose-500 hover:text-rose-600 transition-colors"
+                    >
+                      Change Avatar
+                    </button>
+                  </div>
+                </div>
                 <div>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Topic</label>
                   <select 
@@ -518,7 +613,15 @@ export default function App() {
                 {/* Original Post */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <img src={selectedPost.avatar} alt={selectedPost.author} className="w-10 h-10 rounded-full" />
+                    <div className="w-10 h-10 rounded-full border-2 border-rose-100 overflow-hidden bg-slate-50">
+                      {selectedPost.avatar.startsWith('bubloo-') ? (
+                        <div className="w-full h-full p-1.5">
+                          {getIllustration(selectedPost.avatar)}
+                        </div>
+                      ) : (
+                        <img src={selectedPost.avatar} alt={selectedPost.author} className="w-full h-full object-cover" />
+                      )}
+                    </div>
                     <div>
                       <p className="text-sm font-bold text-slate-800">{selectedPost.author}</p>
                       <p className="text-xs text-slate-400">{selectedPost.timeAgo}</p>
@@ -544,7 +647,15 @@ export default function App() {
                   </h4>
                   {comments.map((comment) => (
                     <div key={comment.id} className="flex gap-4">
-                      <img src={comment.avatar} alt={comment.author} className="w-8 h-8 rounded-full shrink-0" />
+                      <div className="w-8 h-8 rounded-full border border-rose-100 overflow-hidden bg-slate-50 shrink-0">
+                        {comment.avatar.startsWith('bubloo-') ? (
+                          <div className="w-full h-full p-1">
+                            {getIllustration(comment.avatar)}
+                          </div>
+                        ) : (
+                          <img src={comment.avatar} alt={comment.author} className="w-full h-full object-cover" />
+                        )}
+                      </div>
                       <div className="bg-slate-50 rounded-2xl p-4 flex-1">
                         <div className="flex items-center justify-between mb-1">
                           <p className="text-xs font-bold text-slate-800">{comment.author}</p>
@@ -559,6 +670,23 @@ export default function App() {
 
               {/* Comment Input */}
               <div className="p-6 border-t border-slate-100 bg-white shrink-0">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-rose-100 bg-slate-50">
+                    {userAvatar.startsWith('bubloo-') ? (
+                      <div className="w-full h-full p-1">
+                        {getIllustration(userAvatar)}
+                      </div>
+                    ) : (
+                      <img src={userAvatar} alt="Your Avatar" className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                  <button 
+                    onClick={() => setIsChangingAvatar(true)}
+                    className="text-[10px] font-bold text-rose-500 uppercase tracking-wider"
+                  >
+                    Change
+                  </button>
+                </div>
                 <div className="flex items-center gap-3 bg-slate-50 rounded-2xl px-4 py-2 border border-slate-100 focus-within:border-rose-200 transition-colors">
                   <input 
                     type="text" 
@@ -575,6 +703,69 @@ export default function App() {
                   >
                     <Send className="w-5 h-5" />
                   </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Avatar Selector Modal */}
+      <AnimatePresence>
+        {isChangingAvatar && (
+          <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsChangingAvatar(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              className="relative bg-white w-full max-w-md rounded-t-[2rem] sm:rounded-[2rem] p-8 shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold font-heading text-slate-800">Choose Avatar</h2>
+                <button onClick={() => setIsChangingAvatar(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                  <X className="w-6 h-6 text-slate-400" />
+                </button>
+              </div>
+
+              <div className="space-y-8">
+                {/* Photo Upload Option */}
+                <div>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 block">Upload Photo</label>
+                  <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-rose-300 hover:bg-rose-50/30 transition-all">
+                    <div className="flex flex-col items-center gap-2">
+                      <Plus className="w-8 h-8 text-rose-400" />
+                      <span className="text-sm font-bold text-slate-500">Pick from Gallery</span>
+                    </div>
+                    <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+                  </label>
+                </div>
+
+                {/* Brand Illustrations Option */}
+                <div>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 block">Brand Illustrations</label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {illustrationUrls.map((url) => (
+                      <button
+                        key={url}
+                        onClick={() => {
+                          setUserAvatar(url);
+                          setIsChangingAvatar(false);
+                        }}
+                        className={`aspect-square rounded-2xl p-3 border-2 transition-all ${
+                          userAvatar === url ? 'border-rose-500 bg-rose-50' : 'border-slate-100 hover:border-rose-200'
+                        }`}
+                      >
+                        {getIllustration(url)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </motion.div>

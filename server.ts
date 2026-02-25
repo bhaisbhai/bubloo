@@ -45,7 +45,7 @@ if (postCount.count === 0) {
       content: 'After 3 weeks of consistent bedtime routine, my 10-week-old finally slept for 5 hours straight. There is light at the end of the tunnel, mamas!',
       likes: 24,
       timeAgo: '2h ago',
-      avatar: 'https://picsum.photos/seed/priya/100/100'
+      avatar: 'bubloo-mother'
     },
     {
       id: 'post-2',
@@ -55,7 +55,7 @@ if (postCount.count === 0) {
       content: 'My 4-month-old has suddenly started refusing the bottle when I go to work. We\'ve tried different teats but no luck. Any advice?',
       likes: 15,
       timeAgo: '5h ago',
-      avatar: 'https://picsum.photos/seed/arjun/100/100'
+      avatar: 'bubloo-bottle'
     },
     {
       id: 'post-3',
@@ -65,7 +65,7 @@ if (postCount.count === 0) {
       content: 'My baby just laughed for the first time today while I was making silly faces. I actually cried happy tears. Best moment of parenthood so far.',
       likes: 56,
       timeAgo: '1d ago',
-      avatar: 'https://picsum.photos/seed/ananya/100/100'
+      avatar: 'bubloo-rattle'
     }
   ];
 
@@ -81,7 +81,7 @@ if (postCount.count === 0) {
       author: 'Sana M.',
       content: 'That is amazing! We are still struggling at 8 weeks.',
       timeAgo: '1h ago',
-      avatar: 'https://picsum.photos/seed/sana/100/100'
+      avatar: 'bubloo-pacifier'
     },
     {
       id: 'comment-2',
@@ -89,7 +89,7 @@ if (postCount.count === 0) {
       author: 'Zoya A.',
       content: 'Consistency is definitely key. Well done!',
       timeAgo: '30m ago',
-      avatar: 'https://picsum.photos/seed/zoya/100/100'
+      avatar: 'bubloo-rings'
     }
   ];
 

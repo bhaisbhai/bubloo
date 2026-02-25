@@ -1,9 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Nunito", sans-serif;
+
+  --color-brand-peach: #F4B18C;
+  --color-brand-mint: #A2D5B3;
+  --color-brand-cream: #FFF8E6;
+  --color-brand-grey: #E8E8E8;
+  --color-brand-dark-peach: #D68C6A;
 }
 
 @layer utilities {
